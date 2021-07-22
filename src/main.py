@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands, tasks
+from discord_components.component import ButtonStyle
+from discord_components import DiscordComponents, Button, Select, SelectOption, ActionRow
 from libs.pokebot_help import *
 from libs.embeds import *
 
@@ -32,6 +34,8 @@ class PokeBot(commands.Bot):
 
 
 client = PokeBot(command_prefix="!", help_command=commands.DefaultHelpCommand())
+DiscordComponents(client)
+
 token = os.getenv('DISCORD_POKEBOT_TOKEN')
 
 # Get cogs

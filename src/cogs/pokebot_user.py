@@ -1,7 +1,10 @@
 import discord
 from discord.ext import commands
-from src.libs.embeds import *
-from src.libs.misc import *
+from discord_components.component import ButtonStyle
+from discord_components import DiscordComponents, Button, Select, SelectOption, ActionRow
+
+from libs.embeds import *
+from libs.misc import *
 
 class PokeBotUser(commands.Cog):
 
