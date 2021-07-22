@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+# Administration commands can only be used by members with this role.
 admin_role: str = "PokeBotAdmin"
 
 # Operations for getting information about members based on context
