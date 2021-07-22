@@ -1,32 +1,69 @@
 import discord
 from discord.ext import commands
-
-class PokeBotError(Exception):
-    def __init__(self, message):
-        self.message = message
+from libs.misc import MemberCast
+from libs.exceptions import BattleException
 
 class BattleInfo:
+    """Class for storing the info of any battle.
+    """
     def __init__(self):
+        """[summary]
+        """
         self.player_pair = []
 
-    def print_info(self):
+    async def print_info(self, ctx: discord.ext.commands.Context) -> str:
+        """[summary]
+
+        Args:
+            ctx (discord.ext.commands.Context): The Discord context for extracting the 
+
+        Returns:
+            str: [description]
+        """
         if len(self.player_pair) == 0:
             return "Empty"
         elif len(self.player_pair) == 1:
-            return "{} waiting".format(self.player_pair[0])
+            return "{} waiting".format(
+                await MemberCast().get_display_name(ctx, self.player_pair[0])
+            )
         elif len(self.player_pair) == 2:
-            return "{} vs. {}".format(self.player_pair[0], self.player_pair[1])
+            return "{} vs. {}".format(
+                await MemberCast().get_display_name(ctx, self.player_pair[0]),
+                await MemberCast().get_display_name(ctx, self.player_pair[1])
+            )
+
+    # Check whether the battle room is empty
+    def is_empty(self):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
+        return self.player_pair == []
 
     # Check whether the battle room is full
-    def is_full(self):
+    def is_full(self) -> bool:
         return len(self.player_pair) == 2
 
     # Add player to battle
-    def join_battle(self, player: str):
+    def join_battle(self, player: int):
+        """[summary]
+
+        Args:
+            player (int): [description]
+
+        Raises:
+            BattleException: [description]
+        """
         if not self.is_full():
             self.player_pair.append(player)
         else:
-            raise PokeBotError("This battle is already full")
+            raise BattleException("This battle is already full")
+
+    # Remove player from room
+    def leave_battle(self, player: str):
+        if player in self.player_pair:
+            self.player_pair.remove(player)
 
 # Manager class for creating, leaving and joining battles
 class BattleManager:
@@ -35,18 +72,6 @@ class BattleManager:
         # Create the battle set
         # Add a placeholder
         self.battle_set = dict()
-
-    def info_embed(self):
-        em = discord.Embed(
-            title="Ongoing battles",
-            description="Here's a list of the current battles"
-        )
-        for k in self.battle_set:
-            em.add_field(
-                name="Battle room nº {}".format(k),
-                value=self.battle_set[k].print_info()
-            )
-        return em
 
     # Creates a battle, allocates a slot in the battle set and returns the battle index
     def create_battle(self):
@@ -62,19 +87,18 @@ class BattleManager:
         self.battle_set[cur_idx] = BattleInfo()
         return cur_idx
 
-    def join_room(self, player: str, idx: int):
+    def join_room(self, player: int, idx: int):
         if idx in self.battle_set:
-            # Can throw PokeBotError if the battle is already full
-            # or the player is already participating in this battle
             self.battle_set[idx].join_battle(player)
         else:
-            raise PokeBotError("This battle doesn't exist")
+            raise BattleException("This battle doesn't exist")
 
-    # Leave battle with index idx
-    # idx: integer
-    def leave_battle(self, idx):
+    
+    def leave_battle(self, player: int, idx: int):
         if idx in self.battle_set.keys():
-            self.battle_set.pop(idx)
+            self.battle_set[idx].leave_battle(player)
+            if self.battle_set[idx].is_empty():
+                self.battle_set.pop(idx)
 
     def room_full(self, idx):
         return self.battle_set[idx].is_full()
