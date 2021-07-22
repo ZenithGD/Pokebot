@@ -39,7 +39,7 @@ class PokeBotBattle(commands.Cog):
     # -------------------------------------------------------------------------
 
     @commands.group(name="battle", description="Command group for PokéBot battles")
-    async def battle(self, ctx: discord.ext.commands.Context):
+    async def battle(self, ctx: commands.Context):
         """Command group for battles.
 
         If the subcommand doesn't exist, it will send a message.
@@ -47,14 +47,14 @@ class PokeBotBattle(commands.Cog):
         Note: Every battle subcommand should be in this group.
 
         Args:
-            ctx (discord.ext.commands.Context): The context in which the command was invoked.
+            ctx (commands.Context): The context in which the command was invoked.
         """
         if ctx.invoked_subcommand is None:
             await ctx.send("This sub command doesn't exist.")
 
     # TODO: Hold a list of pending battle room messages and delete those after 30 minutes
     @battle.command(name="start", description="Start a battle and generate room number")
-    async def start(self, ctx: discord.ext.commands.Context):
+    async def start(self, ctx: commands.Context):
         """Battle subcommand for starting a battle room.
 
         Creates a new room, indexed by a positive integer and sends an
@@ -68,7 +68,7 @@ class PokeBotBattle(commands.Cog):
             is already participating in another battle.
 
         Args:
-            ctx (discord.ext.commands.Context): The context in which the command was invoked.
+            ctx (commands.Context): The context in which the command was invoked.
         """
 
         # Check if user is already in a battle
@@ -126,14 +126,14 @@ class PokeBotBattle(commands.Cog):
 
     # Command for leaving the current room.
     @battle.command(name="leave", description="Leave the battle room you are currently in")
-    async def leave(self, ctx: discord.ext.commands.Context):
+    async def leave(self, ctx: commands.Context):
         """Battle subcommand for leaving a battle room.
 
         If the user is already participating in a battle, the user will leave the room.
         Otherwise, an info message will be sent.
 
         Args:
-            ctx (discord.ext.commands.Context): The context in which the command was invoked.
+            ctx (commands.Context): The context in which the command was invoked.
         """
         # Check whether the user is participating in a battle
         if ctx.message.author.id not in self.battle_map:
@@ -146,14 +146,14 @@ class PokeBotBattle(commands.Cog):
 
     # Join any given room if it exists
     @battle.command(name="join", description="Join a battle room")
-    async def join(self, ctx: discord.ext.commands.Context, room: int):
+    async def join(self, ctx: commands.Context, room: int):
         """Battle subcommand for joining any given room.
 
         If the user is not participating in any other battle, it will join
         room nº <room>. Otherwise, an info message will be se
 
         Args:
-            ctx (discord.ext.commands.Context: The context in which the command was invoked.
+            ctx (commands.Context: The context in which the command was invoked.
             room (int): The index of the battle room
         """
 
@@ -177,7 +177,7 @@ class PokeBotBattle(commands.Cog):
         """Show a list of the ongoing battles
 
         Args:
-            ctx (discord.ext.commands.Context): The context in which the command was invoked.
+            ctx (commands.Context): The context in which the command was invoked.
         """
         embed = discord.Embed(
             title="Battle rooms",

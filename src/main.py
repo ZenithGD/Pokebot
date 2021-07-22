@@ -39,7 +39,7 @@ DiscordComponents(client)
 token = os.getenv('DISCORD_POKEBOT_TOKEN')
 
 # Get cogs
-initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_user']
+initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info']
 
 # Load extensions
 if __name__ == '__main__':

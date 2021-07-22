@@ -3,6 +3,75 @@ from discord.ext import commands
 from libs.misc import MemberCast
 from libs.exceptions import BattleException
 
+from enum import Enum, unique
+
+@unique
+class PokeType(Enum):
+    Normal      = 0,    "Normal"
+    Fire        = 1,    "Fire"
+    Water       = 2,    "Water"
+    Grass       = 3,    "Grass"
+    Electric    = 4,    "Electric"    
+    Ice         = 5,    "Ice"
+    Fighting    = 6,    "Fighting"    
+    Poison      = 7,    "Poison"
+    Ground      = 8,    "Ground"
+    Flying      = 9,    "Flying"
+    Psychic     = 10,   "Psychic"    
+    Bug         = 11,   "Bug"
+    Rock        = 12,   "Rock"
+    Ghost       = 13,   "Ghost"
+    Dragon      = 14,   "Dragon"    
+    Dark        = 15,   "Dark"
+    Steel       = 16,   "Steel"
+    Fairy       = 17,   "Fairy"
+
+class PokemonInfo:
+    """General information about Pokémon.
+
+    Attributes:
+        __type_chart (dict of PokeType:(list of float)): Represents the attack 
+        multiplier for each attacking type for every defending type.
+
+        Note: The i-th component in each list represents the multiplier for
+        the type whose Poketype.value = i. 
+        
+        For example:
+
+            self.__type_chart[PokeType.Fire][PokeType.Water.value] = 0.5,
+
+        where PokeType.Water.value = 2, means that a fire Pokémon attacking a water
+        Pokémon will deal half the damage to its opponent.
+    """
+    def __init__(self):
+        """Constructor for initializing private information
+        """
+        self.__type_chart = {
+            PokeType.Normal     : [1,1,1,1,1,1,1,1,1,1,1,1,0.5,0,1,1,0.5,1],
+            PokeType.Fire       : [1,0.5,0.5,2,1,2,1,1,1,1,1,2,0.5,1,0.5,1,2,1],
+            PokeType.Water      : [1,2,0.5,0.5,1,1,1,1,2,1,1,1,2,1,0.5,1,1,1],
+            PokeType.Grass      : [1,0.5,2,0.5,1,1,1,0.5,2,0.5,1,0.5,2,1,0.5,1,0.5,1],
+            PokeType.Electric   : [1,1,2,0.5,0.5,1,1,1,0,2,1,1,1,1,0.5,1,1,1],
+            PokeType.Ice        : [1,0.5,0.5,2,1,0.5,1,1,2,2,1,1,1,1,2,1,0.5,1],
+            PokeType.Fighting   : [2,1,1,1,1,2,1,0.5,1,0.5,0.5,0.5,2,0,1,2,2,0.5],
+            PokeType.Poison     : [1,1,1,2,1,1,1,0.5,0.5,1,1,1,0.5,0.5,1,1,0,2],
+            PokeType.Ground     : [1,2,1,0.5,2,1,1,2,1,0,1,0.5,2,1,1,1,2,1],
+            PokeType.Flying     : [1,1,1,2,0.5,1,2,1,1,1,1,2,0.5,1,1,1,0.5,1],
+            PokeType.Psychic    : [1,1,1,1,1,1,2,2,1,1,0.5,1,1,1,1,0,0.5,1],
+            PokeType.Bug        : [1,0.5,1,2,1,1,0.5,0.5,1,0.5,2,1,1,0.5,1,2,0.5,0.5],
+            PokeType.Rock       : [1,2,1,1,1,2,0.5,1,0.5,2,1,2,1,1,1,1,0.5,1],
+            PokeType.Ghost      : [0,1,1,1,1,1,1,1,1,1,2,1,1,2,1,0.5,1,1],
+            PokeType.Dragon     : [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,0.5,0],
+            PokeType.Dark       : [1,1,1,1,1,1,0.5,1,1,1,2,1,1,2,1,0.5,1,0.5],
+            PokeType.Steel      : [1,0.5,0.5,1,0.5,2,1,1,1,1,1,1,2,1,1,1,0.5,2],
+            PokeType.Fairy      : [1,0.5,1,1,1,1,2,0.5,1,1,1,1,1,1,2,2,0.5,1]
+        }
+
+    def get_multiplier(self, atk: PokeType, defn: PokeType):
+
+        return self.__type_chart[atk][defn.value[0]]
+
+
 class BattleInfo:
     """Class for storing the info of any battle.
     """
