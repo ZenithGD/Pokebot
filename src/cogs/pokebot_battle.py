@@ -150,7 +150,7 @@ class PokeBotBattle(commands.Cog):
         """Battle subcommand for joining any given room.
 
         If the user is not participating in any other battle, it will join
-        room nº <room>. Otherwise, an info message will be sent.
+        room nº <room>. Otherwise, an info message will be se
 
         Args:
             ctx (discord.ext.commands.Context: The context in which the command was invoked.
