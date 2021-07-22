@@ -1,6 +1,4 @@
 # Default ignored files
-/.idea/
-/venv/
 *.xml
 *.iml
 *.pyc
