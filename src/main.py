@@ -41,8 +41,21 @@ token = os.getenv('DISCORD_POKEBOT_TOKEN')
 # Get cogs
 initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info']
 
-# Load extensions
 if __name__ == '__main__':
+
+    # -----------------------------------------------------------
+    # Save the resources locally
+    # -----------------------------------------------------------
+
+    # Load pwd
+    path = os.getcwd()
+
+    res_dirs = ["/res/sprites/berries","/res/sprites/items", "/res/sprites/pokemon"]
+    for dir in res_dirs:
+        
+        os.makedirs(path + dir)
+
+    # Load extensions
     for extension in initial_extensions:
         client.load_extension(extension)
 
