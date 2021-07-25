@@ -7,10 +7,13 @@ from libs.embeds import *
 
 import os
 
+from libs.pokelogger import * 
+
 class PokeBot(commands.Bot):
 
-    def __init__(self, command_prefix, help_command):
+    def __init__(self, command_prefix, help_command, logger: PokeLogger):
         super().__init__(command_prefix=command_prefix, help_command=help_command)
+        self.__logger = logger
         self.uptime = -1
 
     # Start every looping task
@@ -32,31 +35,52 @@ class PokeBot(commands.Bot):
     async def update_uptime(self):
         self.uptime = self.uptime + 1
 
-
-client = PokeBot(command_prefix="!", help_command=commands.DefaultHelpCommand())
-DiscordComponents(client)
-
-token = os.getenv('DISCORD_POKEBOT_TOKEN')
-
-# Get cogs
-initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info']
-
+# TODO: Organize more and improve exception safety and handling
 if __name__ == '__main__':
 
     # -----------------------------------------------------------
-    # Save the resources locally
+    # Create local folder structure and load data
     # -----------------------------------------------------------
 
     # Load pwd
     path = os.getcwd()
 
-    res_dirs = ["/res/sprites/berries","/res/sprites/items", "/res/sprites/pokemon"]
+    # Initialize logging system
+    log_dir = path + "/log"
+    os.makedirs(log_dir, exist_ok=True)
+
+    logger = PokeLogger(log_dir + "/info.log",
+                        log_dir + "/warn.log",
+                        log_dir + "/err.log")
+
+    logger.log("Initialized logging", LogLevel.INFO)
+
+    # Folder path declarations
+    res_dirs = [path + "/res/sprites/berries",
+                path + "/res/sprites/items", 
+                path + "/res/sprites/pokemon"]
+
+    # Create needed folders
     for dir in res_dirs:
-        
-        os.makedirs(path + dir)
+        os.makedirs(dir, exist_ok=True)
+        logger.log(f"Created folder at {dir}", LogLevel.INFO)
+
+    client = PokeBot(command_prefix="!", 
+                     help_command=commands.DefaultHelpCommand(), 
+                     logger=logger
+                    )
+
+    DiscordComponents(client)
+
+    token = os.getenv('DISCORD_POKEBOT_TOKEN')
+
+    # Get cogs
+    initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info']
 
     # Load extensions
     for extension in initial_extensions:
+        logger.log(f"Loading {extension} ...", LogLevel.INFO)
         client.load_extension(extension)
+        logger.log("Done.", LogLevel.INFO)
 
 client.run(token)

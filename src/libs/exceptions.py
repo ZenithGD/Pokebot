@@ -1,3 +1,4 @@
+import libs.pokelogger
 
 class PokeBotError(Exception):
     """A class for Pokébot exception handling and logging
@@ -13,7 +14,7 @@ class PokeBotError(Exception):
         self.message = message
 
     def log(self):
-        """Prints the message and the exception prefix
+        """Prints the message and the exception prefix in the log file
         """
         print(f"[{self.prefix}]: {self.message}")
 
