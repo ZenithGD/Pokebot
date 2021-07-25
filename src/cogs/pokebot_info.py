@@ -8,6 +8,7 @@ from discord_components import DiscordComponents, Button, Select, SelectOption, 
 from libs.embeds import *
 from libs.misc import *
 from libs.pokebot_game import *
+from libs.pokelogger import *
 
 class Pokeprint:
     @staticmethod

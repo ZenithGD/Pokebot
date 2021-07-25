@@ -42,6 +42,7 @@ class PokeLogger:
                 A LogLevel.ERR level will log <msg> into self.__err.
 
         """
-        
-        self.__logfiles[level].write(f"({datetime.now()}) [{LogLevel.INFO.value[1]}]: {msg}\n")
+        log = f"({datetime.now()}) [{LogLevel.INFO.value[1]}]: {msg}"
+        print(log)
+        self.__logfiles[level].write(f"{log}\n")
         self.__logfiles[level].flush()

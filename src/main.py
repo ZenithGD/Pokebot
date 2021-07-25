@@ -13,12 +13,12 @@ class PokeBot(commands.Bot):
 
     def __init__(self, command_prefix, help_command, logger: PokeLogger):
         super().__init__(command_prefix=command_prefix, help_command=help_command)
-        self.__logger = logger
+        self.logger = logger
         self.uptime = -1
 
     # Start every looping task
     async def on_ready(self):
-        print("Bot started successfully")
+        self.logger.log("Bot started successfully")
         self.update_uptime.start()
         self.idle_loop.start()
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     # Load extensions
     for extension in initial_extensions:
-        logger.log(f"Loading {extension} ...", LogLevel.INFO)
+        logger.log(f"Loading {extension}...", LogLevel.INFO)
         client.load_extension(extension)
         logger.log("Done.", LogLevel.INFO)
 

@@ -8,6 +8,7 @@ from libs.exceptions import PokeBotError
 from libs.pokebot_game import *
 from libs.embeds import *
 from libs.misc import *
+from libs.pokelogger import *
 
 # Cog for member commands
 class PokeBotBattle(commands.Cog):
@@ -19,12 +20,13 @@ class PokeBotBattle(commands.Cog):
         battle_map (dict): Association between Discord user IDs and battle rooms.
         battle_mgr (BattleManager): Manages the battle system
     """
-    def __init__(self, bot: commands.Bot, bm: BattleManager):
+    def __init__(self, bot: commands.Bot, bm: BattleManager, logger: PokeLogger):
         """Constructor for initializing the battle cog.
 
         Args:
             bot (commands.Bot): The bot to which the cog will be added.
-            bm (BattleManager): The battle manager
+            bm (BattleManager): The battle manager.
+            logger (PokeLogger): The logging object.
         """
         self.bot = bot
 
@@ -33,6 +35,9 @@ class PokeBotBattle(commands.Cog):
 
         # Manage ongoing battles
         self.battle_mgr = bm
+
+        # Hold reference to main logger
+        self.logger = logger
 
     # -------------------------------------------------------------------------
     # Public commands: Can be used by anyone
@@ -78,7 +83,7 @@ class PokeBotBattle(commands.Cog):
 
             # Generate index and allocate room for the battle
             battle_index = self.battle_mgr.create_battle()
-            print("{} created a battle".format(ctx.message.author.display_name))
+            self.logger.log("{} created a battle".format(ctx.message.author.display_name))
 
             # Room number embed
             em = discord.Embed(
@@ -113,7 +118,7 @@ class PokeBotBattle(commands.Cog):
                         # Associate the user who interacted with the button with the room
                         self.battle_map[interaction.user.id] = battle_index
 
-                        print("{} joined room nº {}.".format(interaction.user.display_name, battle_index))
+                        self.logger.log("{} joined room nº {}.".format(interaction.user.display_name, battle_index))
                         await interaction.respond(content="You joined room nº {}.".format(battle_index))
                     except PokeBotError as xc:
                         xc.log()
@@ -141,7 +146,7 @@ class PokeBotBattle(commands.Cog):
         else:
             self.battle_mgr.leave_battle(ctx.message.author.id, self.battle_map[ctx.message.author.id])
             self.battle_map.pop(ctx.message.author.id)
-            print("{} left the battle.".format(ctx.message.author.id))
+            self.logger.log("{} left the battle.".format(ctx.message.author.id))
             await ctx.send("You left the battle.")
 
     # Join any given room if it exists
@@ -168,7 +173,7 @@ class PokeBotBattle(commands.Cog):
                 # Join the room
                 self.battle_mgr.join_room(ctx.message.author.id, int(room))
                 await ctx.send("You joined room nº {}".format(room))
-                print("{} joined room nº {}.".format(ctx.message.author.id, room))
+                self.logger.log("{} joined room nº {}.".format(ctx.message.author.id, room))
             except PokeBotError as xc:
                 xc.log()
 
@@ -198,4 +203,4 @@ class PokeBotBattle(commands.Cog):
 
 def setup(bot):
     bm = BattleManager()
-    bot.add_cog(PokeBotBattle(bot, bm))
+    bot.add_cog(PokeBotBattle(bot, bm, bot.logger))
