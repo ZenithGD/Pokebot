@@ -1,9 +1,9 @@
-(2021-07-25 03:06:17.750791) [INFO]: Initialized logging
-(2021-07-25 03:06:17.752221) [INFO]: Created folder at /mnt/d/Develop/Python/discordbots/pokebot/res/sprites/berries
-(2021-07-25 03:06:17.753074) [INFO]: Created folder at /mnt/d/Develop/Python/discordbots/pokebot/res/sprites/items
-(2021-07-25 03:06:17.754026) [INFO]: Created folder at /mnt/d/Develop/Python/discordbots/pokebot/res/sprites/pokemon
-(2021-07-25 03:06:17.773187) [INFO]: Loading cogs.pokebot_battle...
-(2021-07-25 03:06:17.780872) [INFO]: Done.
-(2021-07-25 03:06:17.781546) [INFO]: Loading cogs.pokebot_info...
-(2021-07-25 03:06:17.784709) [INFO]: Done.
-(2021-07-25 03:06:20.936308) [INFO]: Bot started successfully
+(2021-07-28 16:26:34.283182) [INFO]: Initialized logging
+(2021-07-28 16:26:34.284313) [INFO]: Created folder at /mnt/d/Develop/Python/discordbots/pokebot/res/sprites/berries
+(2021-07-28 16:26:34.284897) [INFO]: Created folder at /mnt/d/Develop/Python/discordbots/pokebot/res/sprites/items
+(2021-07-28 16:26:34.285384) [INFO]: Created folder at /mnt/d/Develop/Python/discordbots/pokebot/res/sprites/pokemon
+(2021-07-28 16:26:34.302004) [INFO]: Loading cogs.pokebot_battle...
+(2021-07-28 16:26:34.408946) [INFO]: Done.
+(2021-07-28 16:26:34.409548) [INFO]: Loading cogs.pokebot_info...
+(2021-07-28 16:26:34.432812) [INFO]: Done.
+(2021-07-28 16:26:34.433291) [INFO]: Loading a...

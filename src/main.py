@@ -35,7 +35,7 @@ class PokeBot(commands.Bot):
     async def update_uptime(self):
         self.uptime = self.uptime + 1
 
-# TODO: Organize more and improve exception safety and handling
+# TODO: Improve exception safety and handling
 if __name__ == '__main__':
 
     # -----------------------------------------------------------
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     token = os.getenv('DISCORD_POKEBOT_TOKEN')
 
     # Get cogs
-    initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info']
+    initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info', 'a']
 
     # Load extensions
     for extension in initial_extensions:
