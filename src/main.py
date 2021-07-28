@@ -80,7 +80,12 @@ if __name__ == '__main__':
     # Load extensions
     for extension in initial_extensions:
         logger.log(f"Loading {extension}...", LogLevel.INFO)
-        client.load_extension(extension)
+        try:
+            client.load_extension(extension)
+        except discord.DiscordException as xc:
+            logger.log(f"Error while loading {extension}, aborting...", LogLevel.ERR)
+            raise xc
+
         logger.log("Done.", LogLevel.INFO)
 
 client.run(token)
