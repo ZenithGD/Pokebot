@@ -75,7 +75,7 @@ if __name__ == '__main__':
     token = os.getenv('DISCORD_POKEBOT_TOKEN')
 
     # Get cogs
-    initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info', 'a']
+    initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info']
 
     # Load extensions
     for extension in initial_extensions:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         try:
             client.load_extension(extension)
         except discord.DiscordException as xc:
-            logger.log(f"Error while loading {extension}, aborting...", LogLevel.ERR)
+            logger.log(f"Error while loading {extension}. Aborting...", LogLevel.ERR)
             raise xc
 
         logger.log("Done.", LogLevel.INFO)
