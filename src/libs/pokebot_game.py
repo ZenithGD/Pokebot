@@ -1,7 +1,10 @@
 import discord
+import requests
+import json
+
 from discord.ext import commands
 from libs.misc import MemberCast
-from libs.exceptions import BattleException
+from libs.exceptions import BattleException, PokeBotError
 
 from enum import Enum, unique
 
@@ -30,47 +33,64 @@ class PokemonInfo:
     """General information about Pokémon.
 
     Attributes:
-        __type_chart (dict of PokeType:(list of float)): Represents the attack 
+        type_chart (dict of PokeType:(list of float)): Represents the attack 
         multiplier for each attacking type for every defending type.
 
-        Note: The i-th component in each list represents the multiplier for
-        the type whose Poketype.value = i. 
+        Note: The i-th component in each list represents the attack multiplier
+        against the type whose Poketype.value[0] = i. 
         
         For example:
 
-            self.__type_chart[PokeType.Fire][PokeType.Water.value] = 0.5,
+            PokemonInfo.type_chart[PokeType.Fire][PokeType.Water.value] = 0.5,
 
         where PokeType.Water.value = 2, means that a fire Pokémon attacking a water
         Pokémon will deal half the damage to its opponent.
     """
-    def __init__(self):
-        """Constructor for initializing private information
-        """
-        self.__type_chart = {
-            PokeType.Normal     : [1,1,1,1,1,1,1,1,1,1,1,1,0.5,0,1,1,0.5,1],
-            PokeType.Fire       : [1,0.5,0.5,2,1,2,1,1,1,1,1,2,0.5,1,0.5,1,2,1],
-            PokeType.Water      : [1,2,0.5,0.5,1,1,1,1,2,1,1,1,2,1,0.5,1,1,1],
-            PokeType.Grass      : [1,0.5,2,0.5,1,1,1,0.5,2,0.5,1,0.5,2,1,0.5,1,0.5,1],
-            PokeType.Electric   : [1,1,2,0.5,0.5,1,1,1,0,2,1,1,1,1,0.5,1,1,1],
-            PokeType.Ice        : [1,0.5,0.5,2,1,0.5,1,1,2,2,1,1,1,1,2,1,0.5,1],
-            PokeType.Fighting   : [2,1,1,1,1,2,1,0.5,1,0.5,0.5,0.5,2,0,1,2,2,0.5],
-            PokeType.Poison     : [1,1,1,2,1,1,1,0.5,0.5,1,1,1,0.5,0.5,1,1,0,2],
-            PokeType.Ground     : [1,2,1,0.5,2,1,1,2,1,0,1,0.5,2,1,1,1,2,1],
-            PokeType.Flying     : [1,1,1,2,0.5,1,2,1,1,1,1,2,0.5,1,1,1,0.5,1],
-            PokeType.Psychic    : [1,1,1,1,1,1,2,2,1,1,0.5,1,1,1,1,0,0.5,1],
-            PokeType.Bug        : [1,0.5,1,2,1,1,0.5,0.5,1,0.5,2,1,1,0.5,1,2,0.5,0.5],
-            PokeType.Rock       : [1,2,1,1,1,2,0.5,1,0.5,2,1,2,1,1,1,1,0.5,1],
-            PokeType.Ghost      : [0,1,1,1,1,1,1,1,1,1,2,1,1,2,1,0.5,1,1],
-            PokeType.Dragon     : [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,0.5,0],
-            PokeType.Dark       : [1,1,1,1,1,1,0.5,1,1,1,2,1,1,2,1,0.5,1,0.5],
-            PokeType.Steel      : [1,0.5,0.5,1,0.5,2,1,1,1,1,1,1,2,1,1,1,0.5,2],
-            PokeType.Fairy      : [1,0.5,1,1,1,1,2,0.5,1,1,1,1,1,1,2,2,0.5,1]
-        }
 
-    def get_multiplier(self, atk: PokeType, defn: PokeType):
+    type_chart = {
+        PokeType.Normal     : [1,1,1,1,1,1,1,1,1,1,1,1,0.5,0,1,1,0.5,1],
+        PokeType.Fire       : [1,0.5,0.5,2,1,2,1,1,1,1,1,2,0.5,1,0.5,1,2,1],
+        PokeType.Water      : [1,2,0.5,0.5,1,1,1,1,2,1,1,1,2,1,0.5,1,1,1],
+        PokeType.Grass      : [1,0.5,2,0.5,1,1,1,0.5,2,0.5,1,0.5,2,1,0.5,1,0.5,1],
+        PokeType.Electric   : [1,1,2,0.5,0.5,1,1,1,0,2,1,1,1,1,0.5,1,1,1],
+        PokeType.Ice        : [1,0.5,0.5,2,1,0.5,1,1,2,2,1,1,1,1,2,1,0.5,1],
+        PokeType.Fighting   : [2,1,1,1,1,2,1,0.5,1,0.5,0.5,0.5,2,0,1,2,2,0.5],
+        PokeType.Poison     : [1,1,1,2,1,1,1,0.5,0.5,1,1,1,0.5,0.5,1,1,0,2],
+        PokeType.Ground     : [1,2,1,0.5,2,1,1,2,1,0,1,0.5,2,1,1,1,2,1],
+        PokeType.Flying     : [1,1,1,2,0.5,1,2,1,1,1,1,2,0.5,1,1,1,0.5,1],
+        PokeType.Psychic    : [1,1,1,1,1,1,2,2,1,1,0.5,1,1,1,1,0,0.5,1],
+        PokeType.Bug        : [1,0.5,1,2,1,1,0.5,0.5,1,0.5,2,1,1,0.5,1,2,0.5,0.5],
+        PokeType.Rock       : [1,2,1,1,1,2,0.5,1,0.5,2,1,2,1,1,1,1,0.5,1],
+        PokeType.Ghost      : [0,1,1,1,1,1,1,1,1,1,2,1,1,2,1,0.5,1,1],
+        PokeType.Dragon     : [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,0.5,0],
+        PokeType.Dark       : [1,1,1,1,1,1,0.5,1,1,1,2,1,1,2,1,0.5,1,0.5],
+        PokeType.Steel      : [1,0.5,0.5,1,0.5,2,1,1,1,1,1,1,2,1,1,1,0.5,2],
+        PokeType.Fairy      : [1,0.5,1,1,1,1,2,0.5,1,1,1,1,1,1,2,2,0.5,1]
+    }
 
-        return self.__type_chart[atk][defn.value[0]]
+    @staticmethod
+    def get_multiplier(atk: PokeType, defn: PokeType) -> float: 
 
+        return PokemonInfo.type_chart[atk][defn.value[0]]
+
+    @staticmethod
+    def get_pokemon_info(n: int):
+
+        # Get response from the API request
+        response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
+        
+        if response:
+            json_info = response.json()
+            print(json_info['types'])
+            return json_info['id'], \
+                   json_info['name'], \
+                   json_info['height'], \
+                   json_info['weight'], \
+                   [ t['type']['name'] for t in json_info['types'] ], \
+                   json_info['sprites']['front_default']
+            
+        else:
+            raise PokeBotError(f"Error for pokedex entry {n}: Can't reach API endpoint")
 
 class BattleInfo:
     """Class for storing the info of any battle.
@@ -87,7 +107,7 @@ class BattleInfo:
             ctx (discord.ext.commands.Context): The Discord context for extracting the 
 
         Returns:
-            str: [description]
+            str: Prints the state of the current battle
         """
         if len(self.player_pair) == 0:
             return "Empty"

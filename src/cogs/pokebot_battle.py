@@ -1,4 +1,3 @@
-from logging import disable
 import discord
 from discord.ext import commands
 from discord_components import DiscordComponents, Button

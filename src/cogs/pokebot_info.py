@@ -21,9 +21,13 @@ class Pokeprint:
 
 class PokeBotUser(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot, logger):
+
+        # The discord bot object
         self.bot = bot
-        self.pkmn_info = PokemonInfo()
+
+        # Hold reference to main logger
+        self.logger = logger
 
     # -------------------------------------------------------------------------
     # Public commands: Can be used by anyone
@@ -68,7 +72,7 @@ class PokeBotUser(commands.Cog):
             x0, x05, x1, x2 = [], [], [], []
 
             for t in PokeType:
-                multiplier = self.pkmn_info.get_multiplier(PokeType[target_type.capitalize()], t)
+                multiplier = PokemonInfo.get_multiplier(PokeType[target_type.capitalize()], t)
                 if multiplier == 0:
                     x0.append(t)
                 elif multiplier == 0.5:
@@ -79,7 +83,6 @@ class PokeBotUser(commands.Cog):
                     x2.append(t)
 
 
-            # Print embed with fields for each degree of effectiveness
             # Print embed with fields for each degree of effectiveness
             em.add_field(
                 name="✨ Effective against",
@@ -104,17 +107,35 @@ class PokeBotUser(commands.Cog):
 
             await ctx.send(embed=em)
 
+    @info.command()
+    async def pokedex(self, ctx: commands.Context, n: int):
+
+        id, name, height, weight, types, sprite_url = PokemonInfo.get_pokemon_info(n)
+
+        embed = discord.Embed(
+            title=f"Information about #{n}"
+        )
+        embed.set_thumbnail(url=sprite_url)
+        embed.add_field(name="Pokédex ID", value=f"#{id}",  inline=True)
+        embed.add_field(name="Name", value=name, inline=True )
+        embed.add_field(name="Height", value=f"{float(height) / 100.0} m", inline=True )
+        embed.add_field(name="Weight", value=f"{float(weight) / 10.0} kg", inline=True )
+        embed.add_field(name="Types", 
+                        value=", ".join([ s.capitalize() for s in types ]), 
+                        inline=True )
+        await ctx.send(embed=embed)
+
     # -------------------------------------------------------------------------
     # Restricted commands: Can only be used by staff. Staff must have the
     # BotAdmin role in the server
     # -------------------------------------------------------------------------
 
     @commands.command(name="serverstats", description="Show bot usage and presence stats")
-    async def serverstats(self, ctx):
+    async def serverstats(self, ctx: commands.Context):
         if commands.has_role(admin_role):
             await ctx.send(embed=uptime_embed(self.bot))
         else:
             await ctx.send("You don't have permission to run this command")
 
 def setup(bot):
-    bot.add_cog(PokeBotUser(bot))
+    bot.add_cog(PokeBotUser(bot, bot.logger))
