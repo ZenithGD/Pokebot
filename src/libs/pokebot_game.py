@@ -1,12 +1,18 @@
 import discord
+from discord.enums import try_enum
 import requests
 import json
 
 from discord.ext import commands
 from libs.misc import MemberCast
-from libs.exceptions import BattleException, PokeBotError
+from libs.exceptions import *
 
 from enum import Enum, unique
+
+class PokemonInstance:
+
+    def __init__(self) -> None:
+        pass
 
 @unique
 class PokeType(Enum):
@@ -74,23 +80,27 @@ class PokemonInfo:
         return PokemonInfo.type_chart[atk][defn.value[0]]
 
     @staticmethod
-    def get_pokemon_info(n: int):
+    def get_pokemon_info(nm: str):
 
         # Get response from the API request
-        response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{n}")
+        response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{nm.lower()}")
         
         if response:
-            json_info = response.json()
-            print(json_info['types'])
-            return json_info['id'], \
-                   json_info['name'], \
-                   json_info['height'], \
-                   json_info['weight'], \
-                   [ t['type']['name'] for t in json_info['types'] ], \
-                   json_info['sprites']['front_default']
-            
+            return response.json()
         else:
-            raise PokeBotError(f"Error for pokedex entry {n}: Can't reach API endpoint")
+            raise InfoException(f"Can't find {nm} in database.")
+
+    @staticmethod
+    def get_all_pokemon():
+
+        with open('res/names/names.json') as file:
+            names = json.load(file)
+
+        return [ pk['name'] for pk in names['results'] ]
+
+class PokemonBattle:
+    pass
+    
 
 class BattleInfo:
     """Class for storing the info of any battle.

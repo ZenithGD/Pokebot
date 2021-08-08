@@ -16,7 +16,7 @@ class PokeBotError(Exception):
     def log(self):
         """Prints the message and the exception prefix in the log file
         """
-        print(f"[{self.prefix}]: {self.message}")
+        print(f"<{self.prefix}>: {self.message}")
 
 class BattleException(PokeBotError):
     """A class for handling and logging exceptions during battle.
@@ -27,4 +27,12 @@ class BattleException(PokeBotError):
         Args:
             message (str): The exception message
         """
-        super.__init__("BATTLE_ERROR", message)
+        super().__init__("BATTLE_ERROR", message)
+
+class InfoException(PokeBotError):
+    """A class for handling and logging exceptions while gathering pokemon information
+    """
+
+    def __init__(self, message: str):
+
+        super().__init__("POKEMON_INFO_ERROR", message)

@@ -1,8 +1,10 @@
-from re import S
 import discord
 from discord.ext import commands
 from discord_components.component import ButtonStyle
 from discord_components import DiscordComponents, Button, Select, SelectOption, ActionRow
+
+# Currying
+from functools import partial
 
 # TODO: optimize imports
 from libs.embeds import *
@@ -108,22 +110,52 @@ class PokeBotUser(commands.Cog):
             await ctx.send(embed=em)
 
     @info.command()
-    async def pokedex(self, ctx: commands.Context, n: int):
+    async def pokedex(self, ctx: commands.Context, nm: str):
 
-        id, name, height, weight, types, sprite_url = PokemonInfo.get_pokemon_info(n)
+        """print(json_info['types'])
+            return json_info['id'], \
+                   json_info['name'], \
+                   json_info['height'], \
+                   json_info['weight'], \
+                   [ t['type']['name'] for t in json_info['types'] ], \
+                   json_info['sprites']['front_default']
+        """
+        try:
+            poke_info = PokemonInfo.get_pokemon_info(nm)
 
-        embed = discord.Embed(
-            title=f"Information about #{n}"
-        )
-        embed.set_thumbnail(url=sprite_url)
-        embed.add_field(name="Pokédex ID", value=f"#{id}",  inline=True)
-        embed.add_field(name="Name", value=name, inline=True )
-        embed.add_field(name="Height", value=f"{float(height) / 100.0} m", inline=True )
-        embed.add_field(name="Weight", value=f"{float(weight) / 10.0} kg", inline=True )
-        embed.add_field(name="Types", 
-                        value=", ".join([ s.capitalize() for s in types ]), 
-                        inline=True )
-        await ctx.send(embed=embed)
+            # Pokémon's types
+            types = [ t['type']['name'] for t in poke_info['types'] ]
+
+            embed = discord.Embed(
+                title=f"Pokemon Information"
+            )
+            embed.set_thumbnail(url=poke_info['sprites']['front_default'])
+            embed.add_field(name="Pokédex ID", value=f"#{poke_info['id']}", inline=True)
+            embed.add_field(name="Name", value=poke_info['name'], inline=True )
+            embed.add_field(name="Height", value=f"{float(poke_info['height']) / 10.0} m", inline=True )
+            embed.add_field(name="Weight", value=f"{float(poke_info['weight']) / 10.0} kg", inline=True )
+            embed.add_field(name="Types", 
+                            value=", ".join([ s.capitalize() for s in types ]), 
+                            inline=True )
+            await ctx.send(embed=embed)
+        except PokeBotError as xc:
+
+            embed = discord.Embed(
+                title="Oops!",
+                description=f"We can't find {nm} in the Pokédex. Maybe you meant:"
+            )
+            i = 1
+            for e in sorted(PokemonInfo.get_all_pokemon(), key=partial(levenshtein_distance, nm))[:5]:
+                embed.add_field(
+                    name=f"{i}º",
+                    value=e,
+                    inline=True
+                )
+                i = i+1
+            
+            await ctx.send(embed=embed)
+            xc.log()
+
 
     # -------------------------------------------------------------------------
     # Restricted commands: Can only be used by staff. Staff must have the
@@ -135,7 +167,7 @@ class PokeBotUser(commands.Cog):
         if commands.has_role(admin_role):
             await ctx.send(embed=uptime_embed(self.bot))
         else:
-            await ctx.send("You don't have permission to run this command")
+            await ctx.send("You don't have permission to run this command!")
 
 def setup(bot):
     bot.add_cog(PokeBotUser(bot, bot.logger))

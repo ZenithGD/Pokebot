@@ -75,7 +75,7 @@ if __name__ == '__main__':
     token = os.getenv('DISCORD_POKEBOT_TOKEN')
 
     # Get cogs
-    initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info']
+    initial_extensions = ['cogs.pokebot_battle', 'cogs.pokebot_info', 'cogs.pokebot_catch']
 
     # Load extensions
     for extension in initial_extensions:
