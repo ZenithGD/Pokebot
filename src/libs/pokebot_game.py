@@ -2,6 +2,7 @@ import discord
 from discord.enums import try_enum
 import requests
 import json
+import os
 
 from discord.ext import commands
 from libs.misc import MemberCast
@@ -93,8 +94,18 @@ class PokemonInfo:
     @staticmethod
     def get_all_pokemon():
 
-        with open('res/names/names.json') as file:
-            names = json.load(file)
+        names = ""
+        if not os.path.isfile('res/names/names.json'):
+            response = requests.get('https://pokeapi.co/api/v2/pokemon-species/?limit=2000')
+            if response:
+                names = response.json()
+            else:
+                raise InfoException(f"Can't gather name information")
+            with open('res/names/names.json', 'w') as file:
+                json.dump(names, file)
+        else:
+            with open('res/names/names.json') as file:
+                names = json.load(file)
 
         return [ pk['name'] for pk in names['results'] ]
 

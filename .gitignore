@@ -3,4 +3,5 @@
 *.iml
 *.pyc
 *.log
-log/*.log
+./log/*.log
+./res/names/names.json
