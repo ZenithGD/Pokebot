@@ -40,7 +40,7 @@ This project can be hosted at Heroku, you only need to install the Jaws MariaDB 
   - Battle system
     - [x] Battle rooms
     - [ ] PvE battles
-    - [ ] PvP battles
+    - [ ] PvP battles (maybe across servers if possible?)
     - [ ] Ranking system
   - Hunting system
     - [ ] Hunt a pokémon
@@ -53,4 +53,7 @@ This project can be hosted at Heroku, you only need to install the Jaws MariaDB 
 - Database
   - [ ] User inventory
   - [ ] User stats
-  - [ ] Leaderboards
+  - Leaderboards (Local for one discord server, global across discord servers)
+    - [ ] Local Pokédex completion
+    - [ ] Local battle rankings
+    - [ ] Global battle rankings
